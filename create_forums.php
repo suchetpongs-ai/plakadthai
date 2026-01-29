@@ -76,21 +76,7 @@ function create_forum($name, $type = 'group', $fup = 0)
     // Insert into forum_forumfield
     $field_data = array(
         'fid' => $fid,
-        'description' => '',
-        'password' => '',
-        'icon' => '',
-        'redirect' => '',
-        'attachextensions' => '',
-        'rules' => '',
-        'seokeywords' => '',
-        'seodescription' => '',
-        'supe_pushsetting' => '',
-        'modrecommend' => '',
-        'threadtypes' => '',
-        'threadsorts' => '',
-        'creditspolicy' => '',
-        'formulaperm' => '',
-        'domain' => ''
+        'description' => ''
     );
     C::t('forum_forumfield')->insert($field_data);
 
