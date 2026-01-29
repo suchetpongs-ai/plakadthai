@@ -50,8 +50,8 @@ fi
 # Detect PHP version
 PHP_VERSION=$(php -v 2>/dev/null | head -1 | grep -oP 'PHP \K[0-9]+\.[0-9]+' || echo "")
 if [ -z "$PHP_VERSION" ]; then
-    echo -e "${YELLOW}PHP not detected. Will install PHP 8.2${NC}"
-    PHP_VERSION="8.2"
+    echo -e "${YELLOW}PHP not detected. Will install PHP 8.3${NC}"
+    PHP_VERSION="8.3"
     INSTALL_PHP=true
 else
     echo -e "${GREEN}Detected PHP ${PHP_VERSION}${NC}"
