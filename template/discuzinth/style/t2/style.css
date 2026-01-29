@@ -1,0 +1,53 @@
+/*
+[name]Dark[/name]
+[iconbgcolor]#1c1c1c[/iconbgcolor]
+Powered by Discuz! X
+*/
+
+body { background: #1e2126; }
+.ct2_a, .ct3_a { background-color: #FFF; }
+
+#toptb { background: #161616; }
+#um, .chart, .chart em, #ft { color: #ccc; }
+#toptb a, #um a, #ft a, .z a, .xi2, .xi2 a, .xi3 a, .bm a, #nzchattable a, .nzlist a, .bmw .bm_h a { color: #60a2e4; }
+.bm { background: #303641;
+color: #bec0c2;border-color: #616773; }
+
+.tl tr:hover th,
+.tl tr:hover td {
+ background-color:#333;
+}
+
+.pls{ background: #303641;
+color: #bec0c2; }
+.xg2{
+	color: #bec0c2;
+}
+.ad .plc, .ad .pls{
+	background: #1E2126;
+}
+.fl_dit_cat{
+	background: #1e2126;
+}
+.bmw .bm_h a{
+	
+}
+.tl th a:visited, .tl td.fn a:visited{
+	color: #5088bf;
+}
+.category_l1, .category_l2, .category_l3{
+	background: #303641;
+}
+#category_grid h4{
+	background: #1e2126;
+	color: #fff;
+}
+.fl .bm_h, .bm_h{
+	background: #1e2126;
+	color: #fff;
+	border-color: #616773;
+}
+.tedt .pt{
+	background: #4a515e !important;
+color: #fff;
+}
