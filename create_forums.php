@@ -57,7 +57,7 @@ function create_forum($name, $type = 'group', $fup = 0)
         'forumcolumns' => 0,
         'threadcaches' => 0,
         'allowside' => 0,
-        'shownav' => 0,
+        // 'shownav' => 0, // Removed: Not in X3.5 schema
         'simple' => 0,
         'modworks' => 0,
         'allowglobalstick' => 1,
