@@ -12,22 +12,22 @@ require './source/class/class_core.php';
 $discuz = C::app();
 $discuz->init();
 
-if(!$_G['uid'] || $_G['adminid'] != 1) {
+if (!$_G['uid'] || $_G['adminid'] != 1) {
     die('Please login as Administrator first!');
 }
 
 echo "<h1>Creating Categories for Plakadthai.com</h1>";
 
 // Function to create category
-function create_forum($name, $type = 'group', $fup = 0) {
+function create_forum($name, $type = 'group', $fup = 0)
+{
     global $_G;
-    
-    // Check if exists
-    $exists = C::t('forum_forum')->fetch_all_by_name($name);
-    if($exists) {
-        foreach($exists as $forum) {
-            if($forum['fup'] == $fup) return $forum['fid'];
-        }
+
+    // Check if exists using direct DB query to avoid undefined method error
+    $query = DB::query("SELECT * FROM " . DB::table('forum_forum') . " WHERE name='" . addslashes($name) . "'");
+    while ($forum = DB::fetch($query)) {
+        if ($forum['fup'] == $fup)
+            return $forum['fid'];
     }
 
     $data = array(
@@ -58,7 +58,7 @@ function create_forum($name, $type = 'group', $fup = 0) {
         'threadcaches' => 0,
         'allowside' => 0,
         'shownav' => 0,
-        'simple' => 0, 
+        'simple' => 0,
         'modworks' => 0,
         'allowglobalstick' => 1,
         'level' => $fup ? 0 : 1, // Will be updated by trigger
@@ -70,9 +70,9 @@ function create_forum($name, $type = 'group', $fup = 0) {
         'disablethumb' => 0,
         'disablecollect' => 0,
     );
-    
+
     $fid = C::t('forum_forum')->insert($data, true);
-    
+
     // Insert into forum_forumfield
     $field_data = array(
         'fid' => $fid,
@@ -93,7 +93,7 @@ function create_forum($name, $type = 'group', $fup = 0) {
         'domain' => ''
     );
     C::t('forum_forumfield')->insert($field_data);
-    
+
     echo "Created " . ($type == 'group' ? "Category" : "Forum") . ": <strong>$name</strong> (FID: $fid)<br>";
     return $fid;
 }
