@@ -1,0 +1,127 @@
+<!--{subtemplate common/header}-->
+<!--{if $chat['guest_show']&&!$_G['uid']}-->
+{$chat['guest_show']}
+<div style="text-align:right;height:20px;">
+  <span id="n_copyright">&copy; <a href="http://2th.me/" target="_blank">2th Chat</a> <!--{$_G['setting']['plugins']['version']['th_chat']}--></span>
+</div>
+<!--{else}-->
+<script src="source/plugin/th_chat/js/jquery-3.7.1.min.js"></script>
+<script src="source/plugin/th_chat/js/jquery.timeago.js"></script>
+<script src="source/plugin/th_chat/js/emoji-mart-5.5.2.js"></script>
+<link rel="stylesheet" type="text/css" href="{$_G[setting][csspath]}{STYLEID}_forum_viewthread.css?{VERHASH}" />
+<link rel="stylesheet" type="text/css"
+  href="source/plugin/th_chat/template/th_chat.min.css?v=<!--{$_G['setting']['plugins']['version']['th_chat']}-->" />
+<div style="width:100%;margin:0 auto;">
+  <style type="text/css">
+    #nzchatcontent {
+      height: {$chat['chatheight']}px;
+	    font-size: {$chat['fontsize']};
+      {$chat['bgcss']}
+    }
+    #nzchatolcontent {
+      height: {$chat['chatheight']}px;
+    }
+  </style>
+  <script>
+    var nzsetting = {
+      autoconnect: {$chat['autoconnect']},
+      iscleardata: {$chat['iscleardata']},
+      delay: {$chat['delay']},
+      chatrowmax: {$chat['chatrowmax']},
+      reload: {$chat['reload']},
+	    chatheight: {$chat['chatheight']},
+      theme: '{$chat['theme']}',
+    };
+  </script>
+  <script src="source/plugin/th_chat/js/th_chat.min.js?v=<!--{$_G['setting']['plugins']['version']['th_chat']}-->"></script>
+  <div id="nzchat" class="nz{$chat['theme']}">
+    <div id="nzchattable">
+      <div>
+        <div class="nzchatanno">
+          <div id="nzchatnotice" style="float:left;">กำลังโหลดประกาศล่าสุด...</div>
+          <div style="float:right;">
+            <!--{if in_array($_G['adminid'],array(1,2,3))}-->
+            <a href="javascript:void(0);" onclick="nzNotice();">แก้ไขประกาศ</a>
+            <!--{/if}-->
+          </div>
+        </div>
+        <div style="text-align: center;">
+          <div class="nzchat_room nzchat_general nzactive">
+            ออนไลน์ <span id="nzoltotal">?</span>
+          </div>
+          <div class="nzchat_room nzchat_whisper">
+            ส่วนตัว <span id="nzunread"></span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div>
+          <div id="nzchatcontent">
+            <div style="text-align: center;margin-top: 140px;">
+              <!--{if $chat['autoconnect']==1}-->
+              <img src="source/plugin/th_chat/images/loading.svg" alt="Load" />
+              <!--{else}-->
+              <button type="button" onClick="nzLoadTextInit();" style="
+font-size: 14px;
+text-align: center;
+cursor:pointer;
+border: 1px solid transparent;
+padding:2px;
+width:400px;
+border-radius:5px;
+color: #ffffff;
+background-color: #5bc0de;
+border-color: #5bc0de;
+font-weight: bold;">คลิกที่นี่เพื่อเข้าสู่ห้องแชท</button>
+              <!--{/if}-->
+            </div >
+          </div>
+          <div id="nznewmessage">⤓ มีข้อความใหม่ด้านล่าง ⤓</div>
+          <div class="nzquoteboxo">
+			<div class="nzquoteboxp" style="display: none;"></div>
+            <div class="nzquoteboxi"></div>
+          </div>
+        </div>
+        <div id="nzchatolcontent" onMouseOver="nzolover();" onMouseOut="nzolout();">
+          <div style="text-align: center;margin-top: 140px;"><img src = "source/plugin/th_chat/images/loading.svg"></div>
+        </div>
+      </div>
+      <div style="grid-template-columns: auto;">
+        <div id="nzalertbox"></div>
+        <div style="display: flex;">
+          <div id="nzimgup" title="อัปโหลดรูปภาพ"></div>
+          <!--{if $_G['config']['db']['1']['dbcharset'] == 'utf8mb4'}-->
+          <div id="nzemoji" title="Emoji"></div>
+          <div id="nzemoji_popup"></div>
+          <!--{/if}--><input name="mtname" type="text" id="nzchatmessage" maxlength="{$chat['chat_strlen']}"
+            placeholder="กรอกข้อความแล้วกดปุ่ม Enter เพื่อส่งข้อความ" />
+        </div>
+        <div class="nztoolbar">
+          <div>
+            <script src="static/js/seditor.js"></script>
+            <div class="fpd nzchatbbcode">
+              {$chat['editor']} <a href="javascript:void(0);" title="โหลดใหม่" onClick="nzReload();"
+                style="background:url(source/plugin/th_chat/images/reload.png) no-repeat center">Reload</a> <a
+                href="plugin.php?id=th_chat:chat_full" title="แชทจอใหญ่"
+                style="background:url(source/plugin/th_chat/images/fullscreen.png) no-repeat center">Zoom</a>
+              <a href="javascript:void(0);"
+                style="background: url(source/plugin/th_chat/images/settings.png) no-repeat 2px 2px;" title="ตั้งค่า"
+                onclick="showWindow('th_chat_setting', 'plugin.php?id=th_chat:setting');return false;">Settings</a>
+              <script src="data/cache/common_smilies_var.js?{VERHASH}" reload="1"></script>
+              <script reload="1">
+                smilies_show('nzchatsmiliesdiv', 9, 'nzchat');
+              </script>
+              <input id="nzimgupload" type="file" name="nzimgupload" accept="image/*"
+                data-url="https://www.discuz.in.th/plugin.php?id=th_chat:img">
+              <div id="nzchatcpy">
+                <span id="n_copyright">&copy; <a href="http://2th.me/" target="_blank">2th Chat</a> <!--{$_G['setting']['plugins']['version']['th_chat']}--></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--{/if}-->
+<!--{subtemplate common/footer}-->
