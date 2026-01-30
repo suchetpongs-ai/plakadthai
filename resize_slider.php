@@ -14,28 +14,28 @@ $cssFile = DISCUZ_ROOT . './template/default/common/extend_common.css';
 $cssCode = "
 /* SLIDER_RESIZE_START */
 /* Increase height of the 4-frame grid slideshow */
-/* CSS SHOTGUN DEBUGGING */
-/* Try both ID and Class, and add a RED BORDER to verify it works */
-.category_grid .slidebox, 
-#category_grid .slidebox,
-.category_grid .slidebox .slideshow,
-#category_grid .slidebox .slideshow {
-    height: 450px !important;
-    border: 5px solid red !important; /* TEST BORDER - IF YOU SEE THIS, CSS IS WORKING */
+/* CSS NUCLEAR OPTION - GLOBAL SELECTORS */
+/* Removing parent selectors to ensure we hit the element */
+.slidebox, 
+.slideshow, 
+.slideshow li {
+    height: 400px !important; /* Forced Height */
+    border: 5px solid #00FF00 !important; /* BRIGHT GREEN BORDER TEST */
+    box-sizing: border-box !important;
 }
 
-/* Ensure images fill the new height */
-.category_grid .slidebox .slideshow li,
-#category_grid .slidebox .slideshow li {
-     height: 450px !important;
-     width: 100% !important;
-}
-
-.category_grid .slidebox .slideshow img,
-#category_grid .slidebox .slideshow img {
+/* Image handling */
+.slidebox img, 
+.slideshow img {
     height: 100% !important;
     width: 100% !important;
-    object-fit: cover;
+    object-fit: cover !important; 
+}
+
+/* Fix caption position if needed */
+.slidebox span,
+.slideshow span {
+    bottom: 0 !important;
 }
 /* SLIDER_RESIZE_END */
 ";
