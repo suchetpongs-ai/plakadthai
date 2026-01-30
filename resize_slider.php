@@ -14,21 +14,28 @@ $cssFile = DISCUZ_ROOT . './template/default/common/extend_common.css';
 $cssCode = "
 /* SLIDER_RESIZE_START */
 /* Increase height of the 4-frame grid slideshow */
-/* Target ID instead of class */
-#category_grid .slidebox, 
-#category_grid .slidebox .slideshow, 
-#category_grid .slidebox .slideshow li {
-    height: 450px !important; /* Force height */
+/* CSS SHOTGUN DEBUGGING */
+/* Try both ID and Class, and add a RED BORDER to verify it works */
+.category_grid .slidebox, 
+#category_grid .slidebox,
+.category_grid .slidebox .slideshow,
+#category_grid .slidebox .slideshow {
+    height: 450px !important;
+    border: 5px solid red !important; /* TEST BORDER - IF YOU SEE THIS, CSS IS WORKING */
 }
-.category_grid .slidebox .slideshow img {
+
+/* Ensure images fill the new height */
+.category_grid .slidebox .slideshow li,
+#category_grid .slidebox .slideshow li {
+     height: 450px !important;
+     width: 100% !important;
+}
+
+.category_grid .slidebox .slideshow img,
+#category_grid .slidebox .slideshow img {
     height: 100% !important;
     width: 100% !important;
-    object-fit: cover; /* Keeps images looking good without stretching */
-}
-/* Ensure caption stays at bottom */
-.category_grid .slidebox .slideshow span {
-    bottom: 0 !important;
-    top: auto !important;
+    object-fit: cover;
 }
 /* SLIDER_RESIZE_END */
 ";
