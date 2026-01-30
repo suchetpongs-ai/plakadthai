@@ -44,6 +44,7 @@ $cssCode = "
 if (!file_exists($cssFile)) {
     // Create if missing (rare)
     file_put_contents($cssFile, $cssCode);
+    echo "✅ Created extend_common.css with Slider CSS<br>";
 } else {
     // Check if already added
     $currentContent = file_get_contents($cssFile);
@@ -51,17 +52,36 @@ if (!file_exists($cssFile)) {
         file_put_contents($cssFile, $cssCode, FILE_APPEND);
         echo "✅ Added Slider CSS to extend_common.css<br>";
     } else {
-        // If already exists, we might want to update it, but for now just skip to avoid duplicates
-        // Ideally we would replace, but appending !important overrides usually works if placed last.
-        // For simple usage, we'll just say it's applied.
-        echo "ℹ️ Slider CSS already applied.<br>";
+        // If it exists, let's FORCE UPDATE it in case we changed the values inside the block
+        // We will replace the whole file content to be sure we get the latest CSS
+        // (Simplified logic: just append if not found is safer, but here we want to ensure update)
+        // For now, let's just write a new block at the end to override previous ones
+        file_put_contents($cssFile, $cssCode, FILE_APPEND);
+        echo "✅ Appended NEW Slider CSS (Override) to extend_common.css<br>";
     }
 }
 
-// Force Rebuild Cache
+// FORCE DELETE CACHED CSS FILES
+// This is critical because updatecache() sometimes misses generated CSS
+$cacheDir = DISCUZ_ROOT . './data/cache/';
+$files = glob($cacheDir . 'style_*.css');
+if ($files) {
+    echo "<h3>🧹 Deleting Cached CSS Files (Force Rebuild):</h3><ul>";
+    foreach ($files as $file) {
+        if (unlink($file)) {
+            echo "<li>Deleted: " . basename($file) . "</li>";
+        }
+    }
+    echo "</ul>";
+} else {
+    echo "<p>⚠️ No cached CSS files found (Disk cache might be empty or using memory cache).</p>";
+}
+
+// Force Rebuild Cache System
 require_once libfile('function/cache');
 updatecache();
 
-echo "<h1>✅ Slider Resized!</h1>";
-echo "<h3><a href='index.php'>Go to Homepage</a> (Check the images box height)</h3>";
+echo "<h1>✅ CSS Cache Wiped & Slider Resized!</h1>";
+echo "<h3>Current extend_common.css size: " . filesize($cssFile) . " bytes</h3>";
+echo "<h3><a href='index.php'>Go to Homepage</a> (The Red Border SHOULD be there now)</h3>";
 ?>
