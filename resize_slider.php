@@ -1,157 +1,99 @@
 <?php
 define('APPTYPEID', 0);
-define('CURSCRIPT', 'resize_slider');
+define('CURSCRIPT', 'resize_slider_undo');
 require './source/class/class_core.php';
 $discuz = C::app();
 $discuz->init();
 
-echo "<h1>📏 Resizing Slideshow Height...</h1>";
+echo "<h1>🔄 Restoring Original Website State</h1>";
+echo "<p>Removing all injected Javascript and CSS...</p>";
 
-// Define the CSS to increase height
-// --- 1. DEFINE TARGETS (Universal Fix) ---
-// We target both the detected theme and the default fallback
+// --- 1. DEFINE TARGETS ---
 $targets = [
     'discuzinth' => DISCUZ_ROOT . './template/discuzinth/common/',
     'default' => DISCUZ_ROOT . './template/default/common/'
 ];
 
-echo "<h1>🚀 UNIVERSAL SLIDER FIX</h1>";
-echo "Applying fix to ALL themes to ensure we hit the right one.<br>";
-
-// --- 2. THE PAYLOADS ---
-$jsPayload = "
-<!-- UNIVERSAL SLIDER FIX JS START -->
-<script type=\"text/javascript\">
-(function() {
-    console.log('Slider Fix Running...');
-    function forceResize() {
-        var boxHeight = '450px';
-        // BLUE BORDER this time to distinguish from previous attempts
-        var debugBorder = '5px solid #0000FF'; 
-        
-        // Selectors for every possible container
-        var selectors = [
-            '.slidebox', 
-            '.slideshow', 
-            '.slideshow li', 
-            '#category_grid .slidebox', 
-            '.module-cl li'
-        ];
-        
-        selectors.forEach(function(sel) {
-            var elems = document.querySelectorAll(sel);
-            if(elems.length > 0) console.log('Found ' + elems.length + ' elements for ' + sel);
-            for(var i=0; i<elems.length; i++) {
-                elems[i].style.setProperty('height', boxHeight, 'important');
-                elems[i].style.setProperty('border', debugBorder, 'important');
-                elems[i].style.setProperty('box-sizing', 'border-box', 'important');
-                elems[i].style.setProperty('overflow', 'hidden', 'important');
-            }
-        });
-        
-        var imgs = document.querySelectorAll('.slidebox img, .slideshow img');
-        for(var i=0; i<imgs.length; i++) {
-             imgs[i].style.setProperty('height', '100%', 'important');
-             imgs[i].style.setProperty('width', '100%', 'important');
-             imgs[i].style.setProperty('object-fit', 'cover', 'important');
-        }
-    }
-    
-    // Aggressive triggers
-    window.addEventListener('scroll', forceResize); // Trigger on scroll too
-    window.addEventListener('load', forceResize);
-    window.addEventListener('DOMContentLoaded', forceResize);
-    setInterval(forceResize, 500);
-})();
-</script>
-<!-- UNIVERSAL SLIDER FIX JS END -->
-";
-
-$cssPayload = "
-/* UNIVERSAL FIX CSS */
-.slidebox, .slideshow, .slideshow li {
-    height: 450px !important;
-    border: 5px solid #0000FF !important; /* Blue Border */
-}
-.slidebox img, .slideshow img {
-    height: 100% !important;
-    width: 100% !important;
-    object-fit: cover !important;
-}
-";
-
-// --- 3. EXECUTE INJECTION ---
+// --- 2. CLEANUP LOGIC ---
 foreach ($targets as $name => $path) {
-    echo "<h2>Targeting Theme: " . strtoupper($name) . "</h2>";
+    echo "<h2>Cleaning Theme: " . strtoupper($name) . "</h2>";
 
-    if (!file_exists($path)) {
-        echo "⚠️ Path not found: $path (Skipping)<br>";
-        continue;
-    }
-
-    // -> Inject Header
+    // -> Clean Header.htm
     $headerPath = $path . 'header.htm';
     if (file_exists($headerPath)) {
         $content = file_get_contents($headerPath);
-        // Clean old
+        $originalSize = strlen($content);
+
+        // Remove known blocks
         $content = preg_replace('/<!-- FORCE SLIDER HEIGHT JS START -->.*<!-- FORCE SLIDER HEIGHT JS END -->/s', '', $content);
         $content = preg_replace('/<!-- DIRECT SLIDER FIX START -->.*<!-- DIRECT SLIDER FIX END -->/s', '', $content);
         $content = preg_replace('/<!-- UNIVERSAL SLIDER FIX JS START -->.*<!-- UNIVERSAL SLIDER FIX JS END -->/s', '', $content);
 
-        // Inject new
-        $content = str_replace('</head>', $jsPayload . "\n</head>", $content);
+        // Cleanup empty lines left behind
+        $content = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $content);
 
-        if (file_put_contents($headerPath, $content)) {
-            echo "✅ Injected JS into $headerPath<br>";
+        if (strlen($content) != $originalSize) {
+            if (file_put_contents($headerPath, $content)) {
+                echo "✅ Cleaned header.htm (Removed injections)<br>";
+            } else {
+                echo "❌ Failed to write $headerPath<br>";
+            }
         } else {
-            echo "❌ Failed to write $headerPath<br>";
+            echo "ℹ️ header.htm was already clean (or nothing found)<br>";
         }
-    } else {
-        echo "⚠️ $headerPath does not exist.<br>";
     }
 
-    // -> Inject CSS
+    // -> Clean extend_common.css
     $cssPath = $path . 'extend_common.css';
-    if (file_exists($path)) { // Check dir again just in case
-        // Create if missing
-        if (!file_exists($cssPath))
-            file_put_contents($cssPath, "");
-
+    if (file_exists($cssPath)) {
         $cssContent = file_get_contents($cssPath);
-        if (strpos($cssContent, 'UNIVERSAL FIX CSS') === false) {
-            file_put_contents($cssPath, $cssPayload, FILE_APPEND);
-            echo "✅ Appended CSS to $cssPath<br>";
+        $originalCssSize = strlen($cssContent);
+
+        // Remove CSS blocks via exact string matching or patterns
+        // We look for the markers we added
+        $cssContent = preg_replace('/\/\* UNIVERSAL FIX CSS \*\/.*?\}/s', '', $cssContent);
+        $cssContent = preg_replace('/\/\* FORCE SLIDER HEIGHT CSS \*\/.*?\}/s', '', $cssContent);
+        $cssContent = preg_replace('/\/\* FINAL FORCE CSS \*\/.*?\}/s', '', $cssContent);
+
+        // Clean up specific raw css if markers missing
+        $cssContent = str_replace(
+            ".slidebox, .slideshow, .slideshow li {\r\n    height: 400px !important;\r\n    border: 5px solid #00FF00 !important;\r\n}",
+            "",
+            $cssContent
+        );
+
+        if (strlen($cssContent) != $originalCssSize) {
+            file_put_contents($cssPath, $cssContent);
+            echo "✅ Cleaned extend_common.css<br>";
         } else {
-            echo "ℹ️ CSS already present in $cssPath<br>";
+            echo "ℹ️ extend_common.css appeared clean<br>";
         }
     }
 }
 
-// --- 4. VERIFY ON DISK ---
-echo "<h2>Step 2: Verification</h2>";
-$checkPath = $targets['discuzinth'] . 'header.htm';
-if (file_exists($checkPath)) {
-    $checkContent = file_get_contents($checkPath);
-    if (strpos($checkContent, 'UNIVERSAL SLIDER FIX JS') !== false) {
-        echo "<h3 style='color:green'>SUCCESS: Code is physically present on the server disk!</h3>";
-    } else {
-        echo "<h3 style='color:red'>FAILURE: Code was NOT saved to disk! Check permissions.</h3>";
-    }
-}
-
-// --- 5. CLEAR CACHE ---
-echo "<h2>Step 3: Cache Wipe</h2>";
+// --- 3. FLUSH CACHE (The Nuclear Option) ---
+echo "<h2>Step 3: Final Cache Wipe</h2>";
 $tplDir = DISCUZ_ROOT . './data/template/';
 $files = glob($tplDir . '*.php');
 if ($files) {
-    foreach ($files as $f)
+    foreach ($files as $f) {
         if (basename($f) != 'index.php')
             unlink($f);
+    }
     echo "✅ Wiped Compiled Templates.<br>";
 }
+// Also wipe CSS cache
+$cacheDir = DISCUZ_ROOT . './data/cache/';
+$files = glob($cacheDir . 'style_*.css');
+if ($files) {
+    foreach ($files as $f)
+        unlink($f);
+    echo "✅ Wiped CSS Cache.<br>";
+}
+
 require_once libfile('function/cache');
 updatecache();
 
-echo "<h1>✨ DONE. Go to Homepage + Ctrl-F5.</h1>";
-echo "<h3>Expect a BLUE Border.</h3>";
+echo "<h1>✨ RESTORE COMPLETE.</h1>";
+echo "<h3>The site should be back to normal. <a href='index.php'>Go Home</a></h3>";
 ?>
