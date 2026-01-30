@@ -11,77 +11,127 @@ echo "<h1>📏 Resizing Slideshow Height...</h1>";
 // Standard Discuz slidebox is often around 250px. We'll force it to 280px (approx +30px to be safe and noticeable)
 // We also adjust the image fit to ensure it looks good.
 $cssFile = DISCUZ_ROOT . './template/default/common/extend_common.css';
-$cssCode = "
-/* SLIDER_RESIZE_START */
-/* Increase height of the 4-frame grid slideshow */
-/* CSS NUCLEAR OPTION - GLOBAL SELECTORS */
-/* Removing parent selectors to ensure we hit the element */
-.slidebox, 
-.slideshow, 
-.slideshow li {
-    height: 400px !important; /* Forced Height */
-    border: 5px solid #00FF00 !important; /* BRIGHT GREEN BORDER TEST */
-    box-sizing: border-box !important;
+echo "<h1>🚀 Forcing Slider Height (JS Injection Strategy)</h1>";
+
+// 1. Identify Target Files (CORRECTED THEME: discuzinth)
+$themeDir = DISCUZ_ROOT . './template/discuzinth/common/';
+$headerFile = $themeDir . 'header.htm';
+$cssFile = $themeDir . 'extend_common.css';
+
+if (!file_exists($themeDir)) {
+    die("❌ Error: Theme directory not found at $themeDir. Please verify theme name.");
 }
 
-/* Image handling */
-.slidebox img, 
-.slideshow img {
-    height: 100% !important;
-    width: 100% !important;
-    object-fit: cover !important; 
-}
+// 2. Inject Javascript into header.htm
+echo "<h2>Step 1: Injecting Javascript into header.htm</h2>";
+if (file_exists($headerFile)) {
+    $content = file_get_contents($headerFile);
+    $jsCode = "
+<!-- FORCE SLIDER HEIGHT JS START -->
+<script type=\"text/javascript\">
+(function() {
+    function forceResize() {
+        var height = '400px';
+        var border = '5px solid #00FF00'; /* Green Border */
+        // Consolidated selectors list
+        var selectors = [
+            '.slidebox', 
+            '.slideshow', 
+            '.slideshow li', 
+            '#category_grid .slidebox',
+            '.module-cl li'
+        ];
+        
+        selectors.forEach(function(sel) {
+            var elems = document.querySelectorAll(sel);
+            for(var i=0; i<elems.length; i++) {
+                elems[i].style.setProperty('height', height, 'important');
+                elems[i].style.setProperty('border', border, 'important');
+                elems[i].style.setProperty('box-sizing', 'border-box', 'important');
+            }
+        });
+        
+        // Fix images
+        var imgs = document.querySelectorAll('.slidebox img, .slideshow img');
+        for(var i=0; i<imgs.length; i++) {
+             imgs[i].style.setProperty('height', '100%', 'important');
+             imgs[i].style.setProperty('width', '100%', 'important');
+             imgs[i].style.setProperty('object-fit', 'cover', 'important');
+        }
+    }
 
-/* Fix caption position if needed */
-.slidebox span,
-.slideshow span {
-    bottom: 0 !important;
-}
-/* SLIDER_RESIZE_END */
+    // Run immediately, on load, and periodically
+    window.addEventListener('DOMContentLoaded', forceResize);
+    window.addEventListener('load', forceResize);
+    setInterval(forceResize, 1000); 
+})();
+</script>
+<!-- FORCE SLIDER HEIGHT JS END -->
 ";
 
-// Append to file
-if (!file_exists($cssFile)) {
-    // Create if missing (rare)
-    file_put_contents($cssFile, $cssCode);
-    echo "✅ Created extend_common.css with Slider CSS<br>";
-} else {
-    // Check if already added
-    $currentContent = file_get_contents($cssFile);
-    if (strpos($currentContent, 'SLIDER_RESIZE_START') === false) {
-        file_put_contents($cssFile, $cssCode, FILE_APPEND);
-        echo "✅ Added Slider CSS to extend_common.css<br>";
+    // Check if already injected
+    if (strpos($content, 'FORCE SLIDER HEIGHT JS') !== false) {
+        $pattern = '/<!-- FORCE SLIDER HEIGHT JS START -->.*<!-- FORCE SLIDER HEIGHT JS END -->/s';
+        $content = preg_replace($pattern, trim($jsCode), $content);
+        echo "✅ Updated existing JS injection in header.htm<br>";
     } else {
-        // If it exists, let's FORCE UPDATE it in case we changed the values inside the block
-        // We will replace the whole file content to be sure we get the latest CSS
-        // (Simplified logic: just append if not found is safer, but here we want to ensure update)
-        // For now, let's just write a new block at the end to override previous ones
-        file_put_contents($cssFile, $cssCode, FILE_APPEND);
-        echo "✅ Appended NEW Slider CSS (Override) to extend_common.css<br>";
+        $content = str_replace('</head>', $jsCode . "\n</head>", $content);
+        echo "✅ Injected NEW JS block into header.htm<br>";
     }
+
+    if (file_put_contents($headerFile, $content)) {
+        echo "💾 Saved header.htm successfully.<br>";
+    } else {
+        echo "❌ Failed to write to header.htm (Check permissions)<br>";
+    }
+
+} else {
+    echo "❌ header.htm not found at $headerFile<br>";
 }
 
-// FORCE DELETE CACHED CSS FILES
-// This is critical because updatecache() sometimes misses generated CSS
+// 3. Update CSS in the CORRECT theme folder
+echo "<h2>Step 2: Updating extend_common.css in 'discuzinth' theme</h2>";
+$cssCode = "
+/* FORCE SLIDER HEIGHT CSS */
+.slidebox, .slideshow, .slideshow li {
+    height: 400px !important;
+    border: 5px solid #00FF00 !important;
+}
+.slidebox img, .slideshow img {
+    object-fit: cover !important;
+    height: 100% !important;
+    width: 100% !important;
+}
+";
+
+// Write CSS
+if (file_exists($cssFile)) {
+    $currentCss = file_get_contents($cssFile);
+    if (strpos($currentCss, 'FORCE SLIDER HEIGHT CSS') === false) {
+        file_put_contents($cssFile, $cssCode, FILE_APPEND);
+        echo "✅ Appended CSS to extend_common.css<br>";
+    } else {
+        echo "ℹ️ CSS already exists in extend_common.css<br>";
+    }
+} else {
+    file_put_contents($cssFile, $cssCode);
+    echo "✅ Created new extend_common.css<br>";
+}
+
+// 4. Clear Cache
+echo "<h2>Step 3: Creating Cache Clearing Nuclear Explosion 💥</h2>";
 $cacheDir = DISCUZ_ROOT . './data/cache/';
 $files = glob($cacheDir . 'style_*.css');
 if ($files) {
-    echo "<h3>🧹 Deleting Cached CSS Files (Force Rebuild):</h3><ul>";
     foreach ($files as $file) {
-        if (unlink($file)) {
-            echo "<li>Deleted: " . basename($file) . "</li>";
-        }
+        unlink($file);
     }
-    echo "</ul>";
-} else {
-    echo "<p>⚠️ No cached CSS files found (Disk cache might be empty or using memory cache).</p>";
+    echo "✅ Deleted all style_*.css cache files.<br>";
 }
 
-// Force Rebuild Cache System
 require_once libfile('function/cache');
 updatecache();
 
-echo "<h1>✅ CSS Cache Wiped & Slider Resized!</h1>";
-echo "<h3>Current extend_common.css size: " . filesize($cssFile) . " bytes</h3>";
-echo "<h3><a href='index.php'>Go to Homepage</a> (The Red Border SHOULD be there now)</h3>";
+echo "<h1>✨ DONE! Go check the homepage.</h1>";
+echo "<h3><a href='index.php'>Back to Home</a> (Expect Green Borders!)</h3>";
 ?>
