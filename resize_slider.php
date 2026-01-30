@@ -118,8 +118,10 @@ if (file_exists($cssFile)) {
     echo "✅ Created new extend_common.css<br>";
 }
 
-// 4. Clear Cache
+// 4. Clear Cache (THE NUCLEAR OPTION)
 echo "<h2>Step 3: Creating Cache Clearing Nuclear Explosion 💥</h2>";
+
+// Clear CSS Cache
 $cacheDir = DISCUZ_ROOT . './data/cache/';
 $files = glob($cacheDir . 'style_*.css');
 if ($files) {
@@ -127,6 +129,24 @@ if ($files) {
         unlink($file);
     }
     echo "✅ Deleted all style_*.css cache files.<br>";
+}
+
+// Clear COMPILED TEMPLATE Cache (Critical for .htm changes)
+$tplDir = DISCUZ_ROOT . './data/template/';
+$tplFiles = glob($tplDir . '*.php');
+if ($tplFiles) {
+    echo "<h3>🧹 Deleting Compiled Templates (Force HTML Rebuild):</h3><ul>";
+    $count = 0;
+    foreach ($tplFiles as $file) {
+        if (basename($file) != 'index.php') { // Keep index.php security file
+            unlink($file);
+            $count++;
+        }
+    }
+    echo "<li>Deleted $count compiled template files.</li>";
+    echo "</ul>";
+} else {
+    echo "<p>⚠️ No active template cache found.</p>";
 }
 
 require_once libfile('function/cache');
