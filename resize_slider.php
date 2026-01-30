@@ -17,7 +17,7 @@ $cssCode = "
 .category_grid .slidebox, 
 .category_grid .slidebox .slideshow, 
 .category_grid .slidebox .slideshow li {
-    height: 350px !important; /* Increased height significantly */
+    height: 450px !important; /* Increased by +100px for visibility check */
 }
 .category_grid .slidebox .slideshow img {
     height: 100% !important;
