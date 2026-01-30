@@ -14,10 +14,11 @@ $cssFile = DISCUZ_ROOT . './template/default/common/extend_common.css';
 $cssCode = "
 /* SLIDER_RESIZE_START */
 /* Increase height of the 4-frame grid slideshow */
-.category_grid .slidebox, 
-.category_grid .slidebox .slideshow, 
-.category_grid .slidebox .slideshow li {
-    height: 450px !important; /* Increased by +100px for visibility check */
+/* Target ID instead of class */
+#category_grid .slidebox, 
+#category_grid .slidebox .slideshow, 
+#category_grid .slidebox .slideshow li {
+    height: 450px !important; /* Force height */
 }
 .category_grid .slidebox .slideshow img {
     height: 100% !important;
