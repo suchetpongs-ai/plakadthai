@@ -1,24 +1,138 @@
 <!--{template common/header}-->
-<div id="ct" class="wp cl ptw pbw">
-	<table style="margin:0 auto"><tr><td>
-	<div class="z dzphone"><div>
-		<div class="scrtop">
-			<div class="cl"><div class="time"><!--{echo date('H:i')}--></div><div class="defect"></div></div>
-			<div class="siteurl"><!--{$_G['siteurl']}--></div>
+<style>
+	body {
+		background-color: #f0fbfd !important;
+		font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+	}
+
+	.preview-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		min-height: 80vh;
+		gap: 60px;
+		flex-wrap: wrap;
+		padding: 40px 20px;
+	}
+
+	/* Phone Mockup */
+	.phone-mockup {
+		width: 375px;
+		height: 750px;
+		background: #fff;
+		border-radius: 40px;
+		box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+		border: 8px solid #334155;
+		position: relative;
+		overflow: hidden;
+		flex-shrink: 0;
+	}
+
+	.phone-notch {
+		position: absolute;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 150px;
+		height: 25px;
+		background: #334155;
+		border-bottom-left-radius: 16px;
+		border-bottom-right-radius: 16px;
+		z-index: 10;
+	}
+
+	.phone-mockup iframe {
+		width: 100%;
+		height: 100%;
+		border: none;
+	}
+
+	/* Info Card */
+	.info-card {
+		background: white;
+		padding: 48px;
+		border-radius: 24px;
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+		text-align: center;
+		max-width: 400px;
+		width: 100%;
+	}
+
+	.info-title {
+		color: #0d9488;
+		/* Teal */
+		font-size: 28px;
+		font-weight: 700;
+		margin-bottom: 12px;
+	}
+
+	.info-desc {
+		color: #64748b;
+		font-size: 16px;
+		margin-bottom: 32px;
+		line-height: 1.6;
+	}
+
+	.qr-wrapper {
+		background: #f0fbfd;
+		padding: 24px;
+		border-radius: 16px;
+		display: inline-block;
+		margin-bottom: 24px;
+		border: 2px dashed #0d9488;
+	}
+
+	.qr-wrapper img {
+		width: 180px;
+		height: 180px;
+		display: block;
+	}
+
+	.scan-btn {
+		background-color: #0d9488;
+		color: white;
+		padding: 12px 24px;
+		border-radius: 50px;
+		text-decoration: none;
+		font-weight: 600;
+		display: inline-block;
+		transition: transform 0.2s, box-shadow 0.2s;
+	}
+
+	.scan-btn:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+		color: white;
+	}
+
+	@media (max-width: 900px) {
+		.preview-container {
+			flex-direction: column-reverse;
+			gap: 40px;
+		}
+	}
+</style>
+
+<div class="preview-container">
+	<div class="phone-mockup">
+		<div class="phone-notch"></div>
+		<iframe id="ifm0" src="misc.php?mod=mobile&view=true"></iframe>
+	</div>
+
+	<div class="info-card">
+		<h1 class="info-title">{lang login_mobile}</h1>
+		<p class="info-desc">
+			สัมผัสประสบการณ์ใช้งานที่ดียิ่งขึ้น<br>
+			ผ่านมือถือของคุณด้วยดีไซน์ใหม่
+		</p>
+
+		<div class="qr-wrapper">
+			<img src="data/cache/$file" alt="Scan QR Code" />
 		</div>
-		<iframe id="ifm0" frameborder="0" src="misc.php?mod=mobile&view=true"></iframe>
-		<div class="homebar"></div>
-	</div></div>
-	<div class="z" style="margin-top: 60px; width: 430px;">
-		<div class="mtw bm bw0" style="background-color: #dfeaf4;">
-			<div class="bm_c">
-				<h1 class="xw1 xs2 mbn">{lang login_mobile}</h1>
-				<p class="mbw xg2">{lang login_mobile_join}</p>
-				<p class="hm mbw" style="font-size: 18px; color: #F60;">
-					<img src="data/cache/$file" />
-				</p>
-			</div>
+
+		<div>
+			<span class="scan-btn">Scan to Visit</span>
 		</div>
-	</div></td></tr></table>
+	</div>
 </div>
 <!--{template common/footer}-->
